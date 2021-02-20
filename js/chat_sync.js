@@ -43,7 +43,7 @@ async function loadScript(src) {
         script.onload = (ev) => resolve(ev);
         script.onerror = (ev) => reject(ev);
     });
-    
+
     document.head.append(script);
     return prom;
 }
@@ -68,7 +68,7 @@ async function init_youtube_player(video_id) {
             }
         });
     });
-    
+
     return player;
 }
 
@@ -93,7 +93,7 @@ class VideoPlayer {
         if (type == VideoPlayerType.YOUTUBE) {
             // init player
             let player_obj = await VideoPlayer.init_youtube_player(player_data);
-            
+
             // create wrapper
             let get_time = () => player_obj.getCurrentTime();
             let player_wrapper = new VideoPlayer(player_obj, get_time);
@@ -104,18 +104,18 @@ class VideoPlayer {
                     case YT.PlayerState.PLAYING:
                         player_wrapper.onPlayerGo();
                         break;
-        
+
                     case YT.PlayerState.ENDED:
                     case YT.PlayerState.PAUSED:
                         player_wrapper.onPlayerStop();
                         break;
-                    
+
                     case -1:
                     case YT.PlayerState.BUFFERING:
                     case YT.PlayerState.CUED:
                         console.debug("player status", playerStatus);
                         break;
-        
+
                     default:
                         console.debug("unknown player status", playerStatus);
                         break;
@@ -137,11 +137,11 @@ class VideoPlayer {
                     case 'playing':
                         player_wrapper.onPlayerGo();
                         break;
-        
+
                     case 'paused':
                         player_wrapper.onPlayerStop();
                         break;
-                    
+
                     default:
                         console.debug("unknown player status", playerStatus);
                         break;
@@ -177,10 +177,10 @@ class VideoPlayer {
                 resolve();
             }
         });
-    
+
         await loadScript('https://www.youtube.com/iframe_api');
         await player_loaded;
-    
+
         let player = await new Promise((resolve) => {
             let player = new YT.Player('player', {
                 videoId: player_data.video_id,
@@ -189,7 +189,7 @@ class VideoPlayer {
                 }
             });
         });
-        
+
         return player;
     }
 }
@@ -231,7 +231,7 @@ class ChatSync {
         let t_offset = this.offsets[offset_idx-1][1];
         t += t_offset;
 
-        let msg_idx = binarySearch(this.chat, {'time':t}, (a,b) => (a.time-b.time));
+        let msg_idx = binarySearch(this.chat, {'t':t}, (a,b) => (a.t-b.t));
         let delta = msg_idx - this.last_msg_idx;
 
         if (delta > 0 && delta < 150) {
@@ -260,19 +260,19 @@ class ChatSync {
         // create chat message
         const chat_msg_tpl = document.querySelector('#chat-msg-tpl');
         let new_chat_msg = chat_msg_tpl.content.cloneNode(true);
-    
+
         // add badges
         let badge_container = new_chat_msg.querySelector('#userbadges');
-        this.setBadges(badge_container, chat_msg.badges);
-    
+        this.setBadges(badge_container, chat_msg.b);
+
         // set username and color
         let username_span = new_chat_msg.querySelector('.chat-username');
-        username_span.textContent = chat_msg.user.name;
-        username_span.style.color = chat_msg.user.color;
-    
+        username_span.textContent = chat_msg.u.n; // user.name
+        username_span.style.color = chat_msg.u.c; // user.color
+
         let frag_container = new_chat_msg.querySelector('.chat-fragments-container');
-        this.setFragments(frag_container, chat_msg.fragments);
-    
+        this.setFragments(frag_container, chat_msg.f); // fragments
+
         // insert msg in last place
         let chat_stop = document.querySelector('#chat-stop');
         chat_stop.parentNode.insertBefore(new_chat_msg, chat_stop);
@@ -280,11 +280,11 @@ class ChatSync {
 
     setBadges(badge_container, msg_badges) {
         const msg_badge_tpl = document.querySelector('#msg-badge-tpl');
-    
+
         for(const bdg of msg_badges) {
             let new_badge = msg_badge_tpl.content.cloneNode(true);
             let img_elem = new_badge.querySelector("img");
-            
+
             // TODO what if badge is dead
             let bdg_data = this.badges.badge_sets[bdg.id].versions[bdg.v]
             img_elem.title = bdg_data.title;
@@ -292,7 +292,7 @@ class ChatSync {
             img_elem.srcset =  `${bdg_data.image_url_1x} 1x,
                                 ${bdg_data.image_url_2x} 2x,
                                 ${bdg_data.image_url_4x} 4x`;
-    
+
             badge_container.appendChild(new_badge);
         }
     }
@@ -301,27 +301,27 @@ class ChatSync {
         const msg_text_tpl = document.querySelector('#msg-text-tpl');
         const msg_emote_tpl = document.querySelector('#msg-emote-tpl');
         const msg_link_tpl = document.querySelector('#msg-link-tpl');
-    
+
         for (const frag of fragments) {
-            if ('text' in frag) {
+            if ('t' in frag) { // text
                 let text_frag = msg_text_tpl.content.cloneNode(true);
-                text_frag.querySelector('.chat-fragment-text').textContent = frag.text;
+                text_frag.querySelector('.chat-fragment-text').textContent = frag.t;
                 frag_container.appendChild(text_frag);
-    
-            } else if ('emoticon' in frag) {
+
+            } else if ('e' in frag) { // emoticon
                 let emote_frag = msg_emote_tpl.content.cloneNode(true);
                 let emote_img = emote_frag.querySelector('.chat-emote');
-                emote_img.alt =    frag.emoticon.name;
-                emote_img.title =    frag.emoticon.name;
-                emote_img.src =    `https://static-cdn.jtvnw.net/emoticons/v2/${frag.emoticon.id}/default/light/1.0`;
-                emote_img.srcset = `https://static-cdn.jtvnw.net/emoticons/v2/${frag.emoticon.id}/default/light/1.0 1x,
-                                    https://static-cdn.jtvnw.net/emoticons/v2/${frag.emoticon.id}/default/light/2.0 2x,
-                                    https://static-cdn.jtvnw.net/emoticons/v2/${frag.emoticon.id}/default/light/3.0 4x`;
+                emote_img.alt =    frag.e.n;
+                emote_img.title =    frag.e.n;
+                emote_img.src =    `https://static-cdn.jtvnw.net/emoticons/v2/${frag.e.id}/default/light/1.0`;
+                emote_img.srcset = `https://static-cdn.jtvnw.net/emoticons/v2/${frag.e.id}/default/light/1.0 1x,
+                                    https://static-cdn.jtvnw.net/emoticons/v2/${frag.e.id}/default/light/2.0 2x,
+                                    https://static-cdn.jtvnw.net/emoticons/v2/${frag.e.id}/default/light/3.0 4x`;
 
                 let on_super_dead_emote = () => {
                     // emote is fucking dead, replace emote with text
                     let text_frag = msg_text_tpl.content.cloneNode(true);
-                    text_frag.querySelector('.chat-fragment-text').textContent = frag.emoticon.name;
+                    text_frag.querySelector('.chat-fragment-text').textContent = frag.e.n;
 
                     frag_container.replaceChild(text_frag, emote_img.parentNode.parentNode);
                     console.debug('dead emote replaced with text');
@@ -330,20 +330,20 @@ class ChatSync {
                 let on_dead_emote = () => {
                     emote_img.onerror = on_super_dead_emote;
                     emote_img.removeAttribute("srcset");
-                    emote_img.src = `https://github.com/joevods/vodbkp/raw/main/cache/emotes/${frag.emoticon.id}.png`;
+                    emote_img.src = `https://github.com/joevods/vodbkp/raw/main/cache/emotes/${frag.e.id}.png`;
                     console.debug('dead emote replaced with cached', emote_img);
                 };
                 emote_img.onerror = on_dead_emote;
 
                 frag_container.appendChild(emote_frag);
 
-            } else if ('link' in frag) {
+            } else if ('l' in frag) {
                 let link_frag = msg_link_tpl.content.cloneNode(true);
                 let link_a = link_frag.querySelector('.chat-fragment-link');
-                link_a.href = frag.link;
-                link_a.textContent = frag.link;
+                link_a.href = frag.l;
+                link_a.textContent = frag.l;
                 frag_container.appendChild(link_frag);
-                
+
             } else {
                 console.error('unexpected fragment type', frag);
             }
@@ -387,7 +387,7 @@ async function init_player_and_chat() {
         .catch(error => window.location.replace("/"))
         .then(response => response.json())
         .catch(error => console.error(error));
-    
+
     // load data asyncronously
     let [player, global_badges, channel_badges, chat] = await Promise.all([
         VideoPlayer.build(data.player_type, data.player_data),
