@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div class="topbar">
+    <h1>JOEVODS</h1>
+  </div>
+
+  <div class="sidebar">
+    <div class="chat-outer-wrapper">
+      <div class="chat-scroll-y">
+        <div class="chat-scroll-x">
+          <div class="chat-messages-container">
+            <!-- insert chat here -->
+            <div id="chat-stop">
+              <div style="height: 50px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="video-container">
+      <div id="player"></div>
+    </div>
+  </div>
+
+  <template id="chat-msg-tpl">
+    <div class="chat-message" tabindex="0">
+      <div class="chat-fragments-container">
+        <div class="chat-user-container">
+          <span id="userbadges">
+            <!-- badges here -->
+          </span>
+          <span class="chat-username" tabindex="0">
+            <!-- username here -->
+          </span>
+        </div>
+        <span>: </span>
+        <!-- msg fragment here -->
+      </div>
+    </div>
+  </template>
+
+  <template id="msg-badge-tpl">
+    <img class="chat-badge" />
+  </template>
+
+  <template id="msg-text-tpl">
+    <span class="chat-fragment-text"></span>
+  </template>
+
+  <template id="msg-emote-tpl">
+    <div class="chat-fragment-emote">
+      <div class="chat-emote-container">
+        <img class="chat-emote" />
+      </div>
+    </div>
+  </template>
+
+  <template id="msg-link-tpl">
+    <a class="chat-fragment-link" rel="noreferrer noopener" target="_blank"></a>
+  </template>
+
+  <script src="/js/chat_sync.js"></script>
+  <script>
+    init_player_and_chat();
+  </script>
+</body>
+
+</html>
