@@ -330,7 +330,7 @@ class ChatSync {
                 let on_dead_emote = () => {
                     emote_img.onerror = on_super_dead_emote;
                     emote_img.removeAttribute("srcset");
-                    emote_img.src = `/emotes/${frag.emoticon.id}.png`;
+                    emote_img.src = `https://github.com/joevods/vodbkp/raw/main/cache/emotes/${frag.emoticon.id}.png`;
                     console.debug('dead emote replaced with cached', emote_img);
                 };
                 emote_img.onerror = on_dead_emote;
@@ -383,7 +383,7 @@ async function init_player_and_chat() {
     }
     let vod_id = parseInt(urlParams.get('vod'));
 
-    let data = await fetch(`/cache/vods/${vod_id}/video_info.json`)
+    let data = await fetch(`https://raw.githubusercontent.com/joevods/vodbkp/main/cache/vods/${vod_id}/video_info.json`)
         .catch(error => window.location.replace("/"))
         .then(response => response.json())
         .catch(error => console.error(error));
@@ -393,9 +393,8 @@ async function init_player_and_chat() {
         VideoPlayer.build(data.player_type, data.player_data),
         fetch('https://badges.twitch.tv/v1/badges/global/display').then(response => response.json()),
         fetch(`https://badges.twitch.tv/v1/badges/channels/${data.channel_id}/display`).then(response => response.json()),
-        fetch(`/cache/vods/${vod_id}/chat_web.json`).then(response => response.json()),
+        fetch(`https://raw.githubusercontent.com/joevods/vodbkp/main/cache/vods/${vod_id}/chat_web.json`).then(response => response.json()),
     ])
-
     // merge global and channel badges
     const badges = {
         'badge_sets': {
