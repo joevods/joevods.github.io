@@ -2,21 +2,86 @@
 <html>
 
 <head>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+  <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+
+  <style>
+.mdl-card__media {
+  margin: 0;
+}
+.mdl-card__media > img {
+  max-width: 100%;
+}
+.content-grid {
+  max-width: 1440px;
+}
+  </style>
 </head>
 
 <body>
-  <div class="topbar">
-    <h1>JOEVODS</h1>
-  </div>
-  
-  <div class="content">
-    <li>
-        <ul>
-            <a href="vod.html?vod=229255314">Celeste Stream One</a>
-        </ul>
-    </li>
+  <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header">
+      <div class="mdl-layout__header-row">
+        <span class="mdl-layout-title">JOE VODS</span>
+        <div class="mdl-layout-spacer"></div>
+        <nav class="mdl-navigation mdl-layout--large-screen-only">
+          <a class="mdl-navigation__link" href="">TODO</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mdl-layout__content">
+      <div class="mdl-grid content-grid" id="game-card-container">
+      </div>
+    </main>
   </div>
 
+  <template id="game-card-tpl">
+    <div class="mdl-card mdl-cell mdl-cell--3-col mdl-cell--4-col-tablet mdl-cell--4-col-phone mdl-shadow--2dp">
+      <figure class="mdl-card__media"><img src=""></figure>
+      <div class="mdl-card__title"><h2 class="mdl-card__title-text">Game name</h2></div>
+      <div class="mdl-card__supporting-text" id="game-card-link-container">
+      </div>
+    </div>
+  </template>
+
+  <template id="game-card-link-tpl">
+    <span class="mdl-chip"><span class="mdl-chip__text"><a id="vod_link" href="">Part N</a></span></span>
+  </template>
+
+  <script>
+    async function get_games_data() {
+      const data = await fetch(`games_info.json`).then(response => response.json());
+      const game_card_tpl = document.querySelector('#game-card-tpl');
+      const game_card_link_tpl = document.querySelector('#game-card-link-tpl');
+
+      for (const game of data) {
+        let game_card = game_card_tpl.content.cloneNode(true);
+        let img = game_card.querySelector('img');
+        let game_name = game_card.querySelector('h2');
+        img.src = game.img_link;
+        game_name.innerText = game.title;
+
+        let link_cont = game_card.querySelector('#game-card-link-container');
+        for (const [i, v_id] of game.vod_ids.entries()) {
+          let card_link = game_card_link_tpl.content.cloneNode(true);
+          let card_link_a = card_link.querySelector('#vod_link');
+          if (v_id.type == "local") {
+            card_link_a.href = `vod.html?vod=${v_id.id}`;
+          } else {
+            card_link_a.href = v_id.id;
+          }
+          card_link_a.innerText = `Part ${i+1}`;
+
+          link_cont.appendChild(card_link);
+        }
+
+        document.querySelector("#game-card-container").appendChild(game_card);
+      }
+    }
+    
+    get_games_data();
+  </script>
 </body>
 </html>
