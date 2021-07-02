@@ -47,7 +47,7 @@
   </template>
 
   <template id="game-card-link-tpl">
-    <span class="mdl-chip"><span class="mdl-chip__text"><a id="vod_link" href="">Part N</a></span></span>
+    <span class="mdl-chip"><a class="mdl-chip__text" id="vod_link" href="">Part N</a></span>
   </template>
 
   <script>
@@ -72,7 +72,7 @@
           } else {
             card_link_a.href = v_id.id;
           }
-          card_link_a.innerText = `Part ${i+1}`;
+          card_link_a.innerText = `${i+1}`.padStart(2, '0');
 
           link_cont.appendChild(card_link);
         }

@@ -211,7 +211,7 @@ class ChatSync {
     startPolling = () => {
         if (this.polling_handler === null) {
             console.debug("polling started");
-            this.polling_handler = setInterval(this.updateChat, 200);
+            this.polling_handler = setInterval(this.updateChat, 400);
         }
     }
 
