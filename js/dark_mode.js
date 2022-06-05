@@ -1,7 +1,7 @@
 "use strict";
 
 function init_vod_theme() {
-    let nightmode = !localStorage.getItem('darkMode') === 'false';
+    let nightmode = !(localStorage.getItem('darkMode') === 'false');
     set_vod_theme(nightmode);
 }
 
