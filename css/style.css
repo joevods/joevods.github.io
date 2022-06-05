@@ -30,6 +30,11 @@ div, span, a, img, body, html {
   vertical-align: baseline;
 }
 
+h1 {
+  margin-left: 5px;
+  margin-top: 5px;
+}
+
 /* ROOT COMPONENTS */
 html {
   line-height: 1.5;
@@ -45,6 +50,9 @@ body {
   line-height: 1.5;
   font-size: 1.3rem;
 }
+.dark {
+  background-color: #222220;
+}
 
 .topbar {
   position: fixed;
@@ -54,6 +62,12 @@ body {
   width: 100%;
 
   background-color: #f0f0f1;
+  color: #000;
+}
+
+.topbar-dark {
+  background-color: #111110;
+  color: #fff;
 }
 
 .sidebar {
@@ -77,6 +91,9 @@ body {
 
   font-size: 18px;
   background-color: #f0f0f1;
+}
+.content-dark {
+  background-color: #111110;
 }
 
 .video-container {
@@ -107,6 +124,9 @@ body {
   overflow: hidden !important;
   line-height: 2rem;
   z-index: 0;
+}
+.chat-outer-wrapper-dark {
+  color: rgb(245, 245, 250);
 }
 
 .chat-scroll-y {

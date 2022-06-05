@@ -3,11 +3,12 @@
 
 <head>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 
 <body>
   <div class="topbar">
-    <h1>JOEVODS</h1>
+    <h1>JOEVODS <button onclick="toggle_action()" class="material-icons">dark_mode</button></h1>
   </div>
 
   <div class="sidebar">
@@ -69,7 +70,9 @@
   </template>
 
   <script src="/js/chat_sync.js"></script>
+  <script src="/js/dark_mode.js"></script>
   <script>
+    init_vod_theme();
     init_player_and_chat();
   </script>
 </body>
