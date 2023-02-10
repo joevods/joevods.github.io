@@ -181,9 +181,19 @@ class VideoPlayer {
         await loadScript('https://www.youtube.com/iframe_api');
         await player_loaded;
 
+        // get starting point of video from url param if present
+        let pvars = {};
+        let params = new URLSearchParams(document.location.search);
+        console.debug(document.location.search);
+        if (params.get('t') !== null) {
+            pvars['start'] = parseInt(params.get('t'))
+            console.debug(pvars);
+        }
+
         let player = await new Promise((resolve) => {
             let player = new YT.Player('player', {
                 videoId: player_data.video_id,
+                playerVars: pvars,
                 events: {
                   'onReady': event => {resolve(event.target)}
                 }

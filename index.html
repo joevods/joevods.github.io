@@ -68,7 +68,11 @@
           let card_link = game_card_link_tpl.content.cloneNode(true);
           let card_link_a = card_link.querySelector('#vod_link');
           if (v_id.type == "local") {
-            card_link_a.href = `vod.html?vod=${v_id.id}`;
+            if (v_id.t !== undefined) {
+              card_link_a.href = `vod.html?vod=${v_id.id}&t=${v_id.t}`;
+            } else {
+              card_link_a.href = `vod.html?vod=${v_id.id}`;
+            }
           } else {
             card_link_a.href = v_id.id;
           }
