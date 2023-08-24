@@ -295,13 +295,16 @@ class ChatSync {
             let new_badge = msg_badge_tpl.content.cloneNode(true);
             let img_elem = new_badge.querySelector("img");
 
-            // TODO what if badge is dead
-            let bdg_data = this.badges.badge_sets[bdg.id].versions[bdg.v]
+            if (!(bdg.id in this.badges) || !(bdg.v in this.badges[bdg.id])) {
+                console.error('badge not present', bdg);
+                continue;
+            }
+            let bdg_data = this.badges[bdg.id][bdg.v];
             img_elem.title = bdg_data.title;
-            img_elem.src = bdg_data.image_url_1x;
-            img_elem.srcset =  `${bdg_data.image_url_1x} 1x,
-                                ${bdg_data.image_url_2x} 2x,
-                                ${bdg_data.image_url_4x} 4x`;
+            img_elem.src = bdg_data.image1x;
+            img_elem.srcset =  `${bdg_data.image1x} 1x,
+                                ${bdg_data.image2x} 2x,
+                                ${bdg_data.image4x} 4x`;
 
             badge_container.appendChild(new_badge);
         }
@@ -385,6 +388,49 @@ class ChatSync {
     }
 }
 
+async function prepare_badge_request(channelName) {
+    return fetch("https://gql.twitch.tv/gql", {
+        "headers": {
+            "client-id": "kimne78kx3ncx6brgo4mv6wki5h1ko",
+        },
+        "method": "POST",
+        "body": JSON.stringify(
+            {
+                "operationName": "ChatList_Badges",
+                "variables":{
+                    "channelLogin": channelName,
+                },
+                "extensions":{
+                    "persistedQuery":{
+                        "version": 1,
+                        "sha256Hash":"86f43113c04606e6476e39dcd432dee47c994d77a83e54b732e11d4935f0cd08"
+                    }
+                }
+            }
+        ),
+    });
+}
+
+function prepare_badges_data(badges_data) {
+    let badges = {};
+    
+    // global badges
+    for (const bdg of badges_data['data']['badges']) {
+        if (!(bdg.setID in badges)) {
+            badges[bdg.setID] = {};
+        }
+        badges[bdg.setID][bdg.version] = bdg;
+    }
+    
+    // channel badges
+    for (const bdg of badges_data['data']['user']['broadcastBadges']) {
+        if (!(bdg.setID in badges)) {
+            badges[bdg.setID] = {};
+        }
+        badges[bdg.setID][bdg.version] = bdg;
+    }
+    return badges;
+}
 
 async function init_player_and_chat() {
     let urlParams = new URLSearchParams(window.location.search);
@@ -399,19 +445,13 @@ async function init_player_and_chat() {
         .catch(error => console.error(error));
 
     // load data asyncronously
-    let [player, global_badges, channel_badges, chat] = await Promise.all([
+    let [player, badges_data, chat] = await Promise.all([
         VideoPlayer.build(data.player_type, data.player_data),
-        fetch('https://badges.twitch.tv/v1/badges/global/display').then(response => response.json()),
-        fetch(`https://badges.twitch.tv/v1/badges/channels/${data.channel_id}/display`).then(response => response.json()),
+        prepare_badge_request('andersonjph').then(response => response.json()),
         fetch(`https://raw.githubusercontent.com/joevods/vodbkp/main/cache/vods/${vod_id}/chat_web.json`).then(response => response.json()),
     ])
-    // merge global and channel badges
-    const badges = {
-        'badge_sets': {
-            ...global_badges.badge_sets,
-            ...channel_badges.badge_sets,
-        }
-    }
+
+    const badges = prepare_badges_data(badges_data);
 
     new ChatSync(player, chat, badges, data.offsets);
 }
